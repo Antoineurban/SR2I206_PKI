@@ -1,16 +1,24 @@
 pragma solidity ^0.4.0;
 
 contract PKI {
-
+    
+    address owner;
+    
+    mapping (uint => Entity) public entities;
     mapping (uint => Certificate) public registry;
     mapping (uint => Signature) public signings;
     mapping (uint => bool) public crl;
+    uint nEntities;
     uint nCertificates;
     uint nSignatures;
+    
+    struct Entity {
+        address identity;
+        bytes32 publicKey;
+    }
 
     struct Certificate {
         address issuer;
-        bytes32 publicKey;
         string data;
         string hash;
     }
@@ -21,26 +29,48 @@ contract PKI {
         uint expiry;
     }
 
-    constructor() public { }
+    constructor() public {
+        owner = msg.sender;
+    }
+    
+    // Add a trusted entity. Owner of the PKI only
+    function register(address trustedEntity, bytes32 publicKey)
+        public returns (uint entityId) {
+        
+        if (msg.sender == owner) {
+            entityId = nEntities++;
+            entities[entityId] = Entity(trustedEntity, publicKey);
+        } else {
+            throw;
+        }
+    }
 
-    // Add a certificate
-    function register(address issuer, bytes32 publicKey, string data,
-                      string hash) public returns (uint certId) {
+    // A non trusted entity publishes its certificate
+    function append(string data, string hash) public returns (uint certId) {
         certId = nCertificates++;
-        registry[certId] = Certificate(issuer, publicKey, data, hash);
+        registry[certId] = Certificate(msg.sender, data, hash);    
     }
 
-    // Sign a certificate (expiry is time in seconds)
+    // A trusted entity signs a certificate (expiry is time in seconds)
     function sign(uint certId, uint expiry) public returns (uint signId) {
-        // TODO: should be PKI owner only
-        signId = nSignatures++;
-        signings[signId] = Signature(msg.sender, certId, now + expiry);
-        crl[signId] = false;
+        for (uint i=0; i < nEntities; i++) {
+            if (entities[i].identity == msg.sender) {
+                signId = nSignatures++;
+                signings[signId] = Signature(msg.sender, certId, now + expiry);
+                crl[signId] = false;
+                break;
+            }
+        }
     }
 
-    // Revoke a signature
+    // A trusted entity revokes a signature
     function revoke(uint signId) public {
-        crl[signId] = true;
+        for (uint i=0; i < nEntities; i++) {
+            if (entities[i].identity == msg.sender) {
+                crl[signId] = true;
+                break;
+            }
+        }
     }
 
     function isSignatureValid(uint signId) public view returns (bool state) {
