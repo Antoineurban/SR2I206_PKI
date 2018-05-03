@@ -14,8 +14,34 @@ Here are two articles that helped us building our contract:
  - [Remix](https://remix.ethereum.org/), a Solidity IDE
  - [Solidity documentation](http://solidity.readthedocs.io/en/develop/index.html)
 
+## Results
+
+The contract is available [here](pki.sol). It has been tested on [Remix](https://remix.ethereum.org/), on two scenarios.
+
+### 1st scenario: only one entity
+
+The JSON file of the scenario is available [here](scenario_simple.json).
+
+In this scenario, the owner of the API is the address 0xca35b7d915458ef540ade6068dfe2f44e8fa733c. Then he registers himself with another transaction, append his certificate and signs it.
+
+![](scenario_simple.png)
+
+We then see that the output of `isCertificateValid` is `true`. The certificate is then revoked, and the output is now `false`.
+
+### 2nd scenario: three entities
+
+The JSON file of the scenario is available [here](scenario_advanced.json).
+
+Here the owner of the PKI contract, 0xca35b7d915458ef540ade6068dfe2f44e8fa733c, registers himself and then another entity, 0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db, which has then level 1.
+
+![](scenario_advanced_begin.png)
+
+A third entity, 0x14723a09acff6d2a60dcdf7aa4aff308fddc160c,appends a certificate which is then signed by 0x4b0897b0513fdc7c541b6d9d7e929c4e5364d2db, the level 1 entity. Then the certificated is tested, revoked and re-tested as in the first scenario.
+
+![](scenario_advanced_end.png)
+
 ## Todo-list
 
- - [ ] Proceed advanced testing
- - [ ] Ensure security and privacy
+ - [x] Proceed advanced testing
+ - [x] Ensure security and privacy
  - [ ] JavaScript API?
