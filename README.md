@@ -22,7 +22,7 @@ The contract is available [here](pki.sol). It has been tested on [Remix](https:/
 
 The JSON file of the scenario is available [here](scenario_simple.json).
 
-In this scenario, the owner of the API is the address 0xca35b7d915458ef540ade6068dfe2f44e8fa733c. Then he registers himself with another transaction, append his certificate and signs it.
+In this scenario, the owner of the PKI contract is the address 0xca35b7d915458ef540ade6068dfe2f44e8fa733c. Then he registers himself with another transaction, append his certificate and signs it.
 
 ![](scenario_simple.png)
 
