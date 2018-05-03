@@ -8,9 +8,9 @@ contract PKI {
     mapping (uint => Certificate) public registry;
     mapping (uint => Signature) public signings;
     mapping (uint => bool) public crl;
-    uint nEntities;
-    uint nCertificates;
-    uint nSignatures;
+    uint nEntities = 0;
+    uint nCertificates = 0;
+    uint nSignatures = 0;
     
     struct Entity {
         address identity;
@@ -37,7 +37,6 @@ contract PKI {
     // Add a trusted entity. Owner of the PKI only
     function register(address trustedEntity, bytes32 publicKey)
         public returns (uint entityId) {
-        
         if (msg.sender == owner) {
             entityId = nEntities++;
             entities[entityId] = Entity(trustedEntity, publicKey, 1);
