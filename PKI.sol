@@ -15,6 +15,7 @@ contract PKI {
     struct Entity {
         address identity;
         bytes32 publicKey;
+        uint level;
     }
 
     struct Certificate {
@@ -39,9 +40,18 @@ contract PKI {
         
         if (msg.sender == owner) {
             entityId = nEntities++;
-            entities[entityId] = Entity(trustedEntity, publicKey);
+            entities[entityId] = Entity(trustedEntity, publicKey, 1);
         } else {
-            throw;
+            bool found = false;
+            for (uint i=0; i < nEntities; i++) {
+                if (msg.sender == entities[i].identity) {
+                    entityId = nEntities++;
+                    found = true;
+                    entities[entityId] =
+                        Entity(trustedEntity, publicKey, entities[i].level + 1);
+                }
+            }
+            require(found);
         }
     }
 
